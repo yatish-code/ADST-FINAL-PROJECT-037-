@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stockwise: stock outlook, explained simply</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+      <rect width="34" height="34" rx="9" fill="var(--brand)"/>
+      <polyline points="7,23 14,15 19,20 27,10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <strong>Stockwise</strong>
+      <span>Stock outlook, explained simply</span>
+    </div>
+  </div>
+  <nav class="tabs" aria-label="Sections">
+    <button class="tab active" data-tab="forecast">Forecast</button>
+    <button class="tab" data-tab="company">Company health</button>
+    <button class="tab" data-tab="news">News mood</button>
+    <button class="tab" data-tab="economy">Economy</button>
+    <button class="tab" data-tab="learn">Learn</button>
+  </nav>
+</header>
+
+<div class="picker" id="picker">
+  <label for="stock-select">Choose a stock</label>
+  <select id="stock-select"></select>
+
+  <div id="horizon-group" class="segmented" role="group" aria-label="How far ahead">
+  </div>
+</div>
+
+<section class="landing-hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Smart stock analysis, without the jargon</p>
+    <h1>See the market clearly before you chase the noise.</h1>
+    <p class="hero-text">Stockwise turns price trends, company health, market sentiment, and economic context into one simple, decision-ready view.</p>
+    <div class="hero-actions">
+      <button class="primary-cta" type="button" onclick="document.querySelector('.tab[data-tab=\'forecast\']').click()">Explore forecast</button>
+      <button class="secondary-cta" type="button" onclick="document.querySelector('.tab[data-tab=\'learn\']').click()">How it works</button>
+    </div>
+    <div class="hero-metrics" aria-label="Key product metrics">
+      <div>
+        <strong>47</strong>
+        <span>stocks tracked</span>
+      </div>
+      <div>
+        <strong>5</strong>
+        <span>analysis views</span>
+      </div>
+      <div>
+        <strong>1</strong>
+        <span>simple dashboard</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-panel" aria-label="Stockwise overview">
+    <div class="mini-header">
+      <span class="dot green"></span>
+      <span class="dot amber"></span>
+      <span class="dot red"></span>
+    </div>
+    <div class="hero-card trend-card">
+      <div>
+        <p>MSFT outlook</p>
+        <h3>Leaning up</h3>
+      </div>
+      <span class="trend-pill positive">+4.8%</span>
+    </div>
+    <div class="signal-grid">
+      <div class="mini-stat">
+        <span>Price action</span>
+        <strong>Positive</strong>
+      </div>
+      <div class="mini-stat">
+        <span>News mood</span>
+        <strong>Neutral</strong>
+      </div>
+      <div class="mini-stat">
+        <span>Company health</span>
+        <strong>Strong</strong>
+      </div>
+      <div class="mini-stat highlight">
+        <span>Confidence</span>
+        <strong>Moderate</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature-strip" aria-label="Core product benefits">
+  <article class="feature-card">
+    <span class="feature-icon">📈</span>
+    <h3>Forecast</h3>
+    <p>See the likely price range and how the market is leaning over time.</p>
+  </article>
+  <article class="feature-card">
+    <span class="feature-icon">🏢</span>
+    <h3>Company health</h3>
+    <p>Check revenue, profit, cash flow, valuation, and business strength.</p>
+  </article>
+  <article class="feature-card">
+    <span class="feature-icon">📰</span>
+    <h3>News mood</h3>
+    <p>Review headline sentiment to understand how public tone may affect a stock.</p>
+  </article>
+  <article class="feature-card">
+    <span class="feature-icon">🌍</span>
+    <h3>Economy basics</h3>
+    <p>Learn what inflation, rates, and indexes mean in plain English.</p>
+  </article>
+</section>
+
+<section class="market-overview" aria-labelledby="stock-explorer-title">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Stock explorer</p>
+      <h2 id="stock-explorer-title">Search and open any stock</h2>
+    </div>
+    <label class="search-field" for="stock-search">
+      <span class="sr-only">Search stock</span>
+      <input id="stock-search" type="search" placeholder="Search by stock name or ticker..." autocomplete="off">
+    </label>
+  </div>
+  <div class="market-tabs" aria-label="Market filter">
+    <button type="button" class="market-tab active" data-market="all">All</button>
+    <button type="button" class="market-tab" data-market="US">US</button>
+    <button type="button" class="market-tab" data-market="India">India</button>
+  </div>
+  <div id="stock-grid" class="stock-grid" aria-live="polite"></div>
+</section>
+
+<main>
+  <p id="status" class="status" role="status" hidden></p>
+
+  <section id="tab-forecast">
+    <div class="summary">
+      <div class="summary-stock">
+        <h1 id="stock-name"></h1>
+        <p class="price"><span id="stock-price"></span> <span id="stock-change" class="change"></span></p>
+        <p class="muted" id="stock-meta"></p>
+      </div>
+      <div class="summary-outlook">
+        <p class="chips">
+          <span id="lean-chip" class="chip"></span>
+          <span id="confidence-chip" class="chip chip-flat"></span>
+        </p>
+        <p id="forecast-text" class="big-sentence"></p>
+        <p id="forecast-caveat" class="caveat"></p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Price over the last year, and where it might go</h2>
+        <label class="check"><input type="checkbox" id="show-averages"> Show moving averages</label>
+      </div>
+      <div class="chart-box"><canvas id="price-chart" role="img" aria-label="Line chart of the past year of prices with a forecast range"></canvas></div>
+      <p class="note">The shaded area is the likely range: in past tests, about 8 out of 10 outcomes landed inside it.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Technical check-up</h2>
+          <span id="mood-chip" class="chip"></span>
+        </div>
+        <p class="note">Six common chart readings. “Positive” points up, “Negative” points down. None of them can promise what happens next.</p>
+        <div id="signals"></div>
+      </div>
+
+      <div class="stack">
+        <div class="panel">
+          <h2>How reliable is this forecast?</h2>
+          <p class="note" id="test-note"></p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Looking ahead</th>
+                  <th>Expected</th>
+                  <th><abbr title="How often the model was right about up or down, across all 47 stocks, on data it had not seen.">Model right</abbr></th>
+                  <th><abbr title="How often simply guessing 'up' every time would have been right.">Always “up”</abbr></th>
+                </tr>
+              </thead>
+              <tbody id="scorecard"></tbody>
+            </table>
+          </div>
+          <p class="note">If “Model right” is not clearly higher than “Always up”, the model has no real edge. That is common, and it is worth knowing.</p>
+        </div>
+
+        <div class="panel">
+          <h2>Risk snapshot</h2>
+          <dl id="risk" class="facts"></dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-company" hidden>
+    <h1 id="company-title"></h1>
+    <div id="company-empty" class="panel" hidden></div>
+    <div id="company-body">
+      <div class="panel">
+        <h2>Four quick health checks</h2>
+        <div id="company-checks"></div>
+      </div>
+      <div class="two-col">
+        <div class="panel">
+          <h2>Sales and profit by year</h2>
+          <div class="chart-box short"><canvas id="company-chart" role="img" aria-label="Bar chart of yearly revenue and profit"></canvas></div>
+          <p class="note">Amounts are in billions of US dollars.</p>
+        </div>
+        <div class="panel">
+          <h2>Balance sheet and valuation</h2>
+          <div class="table-scroll"><table id="balance-table"></table></div>
+          <h3 class="subhead">Valuation ratios</h3>
+          <dl id="valuation" class="facts"></dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-news" hidden>
+    <h1>News mood</h1>
+    <p class="lede">Paste news headlines, one per line. Stockwise reads each one the way an investor would and says whether it sounds good, bad or neutral for the company.</p>
+    <div class="panel">
+      <label for="news-input" class="sr-only">Headlines</label>
+      <textarea id="news-input" rows="6" placeholder="Example: Quarterly profit rose 20% as sales beat expectations"></textarea>
+      <div class="actions">
+        <button class="button" id="news-go">Check mood</button>
+        <button class="button button-quiet" id="news-example">Fill in examples</button>
+      </div>
+      <p class="note" id="news-info"></p>
+    </div>
+    <div id="news-output" class="panel" hidden>
+      <h2>Overall mood</h2>
+      <div class="meter" aria-hidden="true"><div class="meter-marker" id="meter-marker"></div></div>
+      <div class="meter-labels"><span>Negative</span><span>Neutral</span><span>Positive</span></div>
+      <p id="news-average" class="big-sentence"></p>
+      <ul id="news-list" class="plain-list"></ul>
+    </div>
+  </section>
+
+  <section id="tab-economy" hidden>
+    <h1>Economy basics</h1>
+    <div class="controls">
+      <label>
+        Indicator
+        <select id="economy-indicator"></select>
+      </label>
+      <label>
+        Index
+        <select id="economy-index"></select>
+      </label>
+    </div>
+    <div class="panel">
+      <h2>Trend and context</h2>
+      <p id="economy-explain" class="lede"></p>
+      <div class="chart-box short"><canvas id="economy-chart" role="img" aria-label="Line chart of economic indicator over time"></canvas></div>
+      <p class="note" id="economy-note"></p>
+    </div>
+  </section>
+
+  <section id="tab-learn" hidden>
+    <h1>How Stockwise works</h1>
+    <ol class="steps">
+      <li>It reads the latest daily prices and company numbers from local CSV files.</li>
+      <li>It turns those prices into signals such as RSI, MACD, trend, and volatility.</li>
+      <li>It trains one model and checks how honest it is on recent data it has not seen.</li>
+      <li>It uses that evidence to show a forecast range and a plain-English explanation.</li>
+    </ol>
+    <div class="panel">
+      <h2>Key terms</h2>
+      <dl class="glossary">
+        <dt>Forecast range</dt>
+        <dd>The likely zone where the price could land over the selected horizon. The midpoint is a guide, not a promise.</dd>
+        <dt>RSI</dt>
+        <dd>A momentum reading. Very high values can mean the stock has run up too fast; very low values can mean it has fallen too far.</dd>
+        <dt>Volatility</dt>
+        <dd>How much prices bounce around. Bumpier stocks can move faster in either direction.</dd>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<footer>Stockwise is a learning tool for exploring stock ideas and understanding common signals. It is not investment advice.</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
